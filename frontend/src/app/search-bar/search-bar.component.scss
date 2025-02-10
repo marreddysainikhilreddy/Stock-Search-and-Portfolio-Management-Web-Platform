@@ -1,0 +1,53 @@
+.btn {
+    border: none;
+    border-top: 4px solid rgb(31, 39, 151);
+    border-bottom: 4px solid rgb(31, 39, 151);
+    border-radius: 0px;
+    border-left: none;
+    border-right: none;
+    color: rgb(31, 39, 151);
+}
+
+.clear-icon {
+    border-right: 4px solid rgb(31, 39, 151);
+    border-bottom-right-radius: 40px;
+    border-top-right-radius: 40px;
+    border-left: none;
+}
+
+.search-icon {
+    border-right: none;
+    border-left: none;  
+}
+
+
+input{
+    border: none;
+    border-top: 4px solid rgb(31, 39, 151);
+    border-bottom: 4px solid rgb(31, 39, 151);
+    border-left: 4px solid rgb(31, 39, 151);
+    border-top-left-radius: 40px;
+    border-bottom-left-radius: 40px;
+    height: 45px;
+}
+
+// .input-group {
+//     width: 25%;
+// }
+
+
+
+.form-control:focus {
+    box-shadow: none;
+    // background-color: transparent;
+    color: inherit;
+    outline: none;
+    border-color: rgb(31, 39, 151) !important;
+}
+
+
+
+
+// .form-control::placeholder {
+//     color: none !important;
+// }

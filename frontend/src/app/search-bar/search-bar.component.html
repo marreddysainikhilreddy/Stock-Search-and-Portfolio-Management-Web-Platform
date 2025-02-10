@@ -1,0 +1,35 @@
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h3 class="mt-4 text-center">STOCK SEARCH</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-md-6 mx-auto">
+            <div class="input-group mx-auto mt-4">   
+                    <input matInput [(ngModel)]="ticker" type="text" (ngModelChange)="checkInputValue" [matAutocomplete]="auto" class="form-control px-3" placeholder="Enter stock ticker symbol" [formControl]="searchControl" (keyup.enter)="onSearch()">
+        
+                    <mat-autocomplete #auto="matAutocomplete">
+                        <mat-option *ngIf="isLoading"><mat-spinner [diameter]="isLoading? 22: 0" class="mx-2"></mat-spinner></mat-option>
+                        <mat-option *ngFor="let item of autocompleteOptions " [value]="item" (click)="onOptionSelect(item)">
+                            {{ item }}
+                        </mat-option>
+                    </mat-autocomplete>
+                <button class="btn active search-icon" (click)="onSearch()">
+                    <fa-icon [icon]="faSearch"></fa-icon>
+                </button>
+                <button class="btn active clear-icon" (click)="onClear()">
+                    <fa-icon [icon]="faTimes"></fa-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <div class="text-center">
+    
+    
+</div> -->
+<div *ngIf="empty">
+    <ngb-alert class="mx-auto mt-5 text-center" style="width: 70%;" type="danger" (closed)="close()" [dismissible]="true">Please enter a valid ticker</ngb-alert>
+</div>

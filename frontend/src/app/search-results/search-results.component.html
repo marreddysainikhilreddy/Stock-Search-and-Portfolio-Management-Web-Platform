@@ -1,0 +1,203 @@
+<app-search-bar [ticker]="ticker"></app-search-bar>
+<div *ngIf="error">
+    <ngb-alert class="mx-auto mt-5 text-center" style="width: 70%;" type="danger" [dismissible]="false">No data found. Please enter a valid Ticker</ngb-alert>
+</div>
+<div *ngIf="watchListAdded">
+    <ngb-alert class="mx-auto mt-5 text-center" style="width: 70%;" type="success" [dismissible]="true">{{ this.ticker }} added to Watchlist.</ngb-alert>
+</div>
+<div *ngIf="watchListRemoved">
+    <ngb-alert class="mx-auto mt-5 text-center" style="width: 70%;" type="danger" [dismissible]="true">{{ this.ticker }} removed from Watchlist.</ngb-alert>
+</div>
+
+<div *ngIf="shareBought">
+    <ngb-alert class="mx-auto mt-5 text-center" style="width: 70%;" type="success" [dismissible]="true">{{ boughtShareTickerName }} bought successfully.</ngb-alert>
+</div>
+
+<div *ngIf="shareSold">
+    <ngb-alert class="mx-auto mt-5 text-center" style="width: 70%;" type="danger" [dismissible]="true">{{ soldShareTickerName }} sold successfully.</ngb-alert>
+</div>
+
+<div *ngIf="!isLoading && displayData">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-5 col-sm-4 text-center mx-auto">
+                <div class="row">
+                    <span class="fs-2">
+                        {{ stockProfileData?.ticker }}
+                        <button class="btn active star-icon fs-5 px-0 pt-0 pb-3" (click)="starOnClick()">
+                            <fa-icon [icon]="faStarValue" [class]="buttonClass"></fa-icon>
+                        </button>
+                    </span>
+                </div>
+                <div class="row">
+                    <p>{{ stockProfileData?.name }}</p>
+                </div>
+                <div class="row">
+                    <p>{{ stockProfileData?.exchange }}</p>
+                </div>
+                <div class="row justify-content-center pt-1">
+                    <div class="col-auto p-0">
+                        <ng-template #content1 let-modal>
+                            <div class="modal-header" style="padding-bottom: 33px; padding-right: 20px">
+                                <h4 class="modal-title" id="modal-basic-title">{{ ticker }}</h4>
+                                <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')" style="font-size: 10px;"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form>
+                                    <div class="mb-3">
+                                        <b><p for="cp">Current Price: {{ quoteData.c.toFixed(2) }}</p></b>
+                                        <b><p for="cp">Money in Wallet: ${{ moneyInWalet.toFixed(2) }}</p></b>
+                                        <div class="input-group">
+                                            <label for="quantity" class="mt-1" style="margin-right: 10px;">Quantity: </label>
+                                            <input class="form-control" type="number" id="quantity" name="quantityInput" min="0" max="100" [value]='buyQuantityInputValue' [(ngModel)]="buyQuantityInputValue" (ngModelChange)="calculateTotalBuyValue()" style="border-radius: 7px;" required/>
+                                        </div>
+                                        <div *ngIf="buyNonPositiveShare">
+                                            <p style="color: red;">Cannot buy non-positive shares</p>
+                                        </div>
+                                        <div *ngIf="totalBuyValue > moneyInWalet">
+                                            <p style="color: red;">Not enough money in wallet!</p>
+                                        </div>
+                                        <div *ngIf="!buyInputValid">
+                                            <p style="color: red;">Please enter a valid amount</p>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer p-1 pb-3 pt-2">
+                                <div class="row w-100 m-0">
+                                    <div class="col">
+                                        <p class="text-left m-0 pt-2">Total: {{ totalBuyValue.toFixed(2) }}</p>
+                                    </div>
+                                    <div class="col d-flex justify-content-end">
+                                        <button type="button" (click)="buyButtonOnClick()" [disabled]="!buyButtonEnabled" class="btn btn-success" (click)="modal.close('Save click')">Buy</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-template>
+                        
+                        <button class="btn btn-success" (click)="open(content1)">Buy</button>
+                    </div>
+                    <div class="col-auto">
+                        <div *ngIf="sellButtonEnabled">     
+                            <ng-template #content2 let-modal>
+                                <div class="modal-header">
+                                    <h4 class="modal-title" id="modal-basic-title" style="padding-bottom: 33px; padding-right: 20px;">{{ ticker }}</h4>
+                                    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')" style="font-size: 10px;"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form>
+                                        <div class="mb-3">
+                                            <b><p for="cp">Current Price: {{ quoteData.c.toFixed(2) }}</p></b>
+                                            <b><p for="cp">Money in Wallet: ${{ moneyInWalet.toFixed(2) }}</p></b>
+                                            <div class="input-group">
+                                                <label for="quantity" class="mt-1" style="margin-right: 10px;">Quantity: </label>
+                                                <input class="form-control" type="number" id="quantity" name="quantityInput" min="0" max="100" [value]='sellQuantityInputValue' [(ngModel)]="sellQuantityInputValue" (ngModelChange)="calculateTotalSellValue()" style="border-radius: 7px;" required/>
+                                            </div>
+                                            <div *ngIf="sellNonPositiveShare">
+                                                <p style="color: red;">Cannot sell non-positive shares!</p>
+                                            </div>
+                                            <div *ngIf="sellQuantityInputValue > stockTickerPortfolioDetails.quantity">
+                                                <p style="color: red;">You cannot sell the stocks that you don't have!</p>
+                                            </div>
+                                            <div *ngIf="!sellInputValid">
+                                                <p style="color: red;">Please enter a valid amount</p>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer p-1 pb-3 pt-2">
+                                    <div class="row w-100 m-0">
+                                        <div class="col">
+                                            <p class="text-left m-0 pt-2">Total: {{ totalSellValue.toFixed(2) }}</p>
+                                        </div>
+                                        <div class="col d-flex justify-content-end">
+                                            <button type="button" (click)="sellButtonOnClick()" [disabled]="!sellButtonInputEnabled" class="btn btn-success" (click)="modal.close('Save click')">Sell</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-template>
+                            
+                            <button class="btn btn-danger" (click)="open(content2)">Sell</button>
+                    </div>
+                </div>
+                    
+                    </div>
+       
+            </div>
+            <div class="col-2 col-sm-4 text-center mx-auto px-0">
+                <img class="logo mb-5 w-100" [src]="stockProfileData?.logo">
+            </div>
+            <div class="col-5 col-sm-4 text-center mx-auto mb-5 px-0">
+                <h2 [ngStyle]="{'color': color}">{{ quoteData?.c?.toFixed(2) }}</h2>
+                <h3 [ngStyle]="{'color': color}"><fa-icon [icon]="color=='red'?faCaretDown:faCaretUp"></fa-icon>  {{ quoteData?.d?.toFixed(2) }} ({{ quoteData?.dp?.toFixed(2) }}%)</h3>
+                <p>{{ currTimeStamp }}</p>
+            </div>
+            <div class="text-center">
+                <b><p *ngIf="marketStatus" style="color: green;" >Market is Open</p></b>
+                <b><p *ngIf="!marketStatus" style="color: red;" >Market Closed on {{ formattedTimeStamp }}</p></b>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row mb-2">
+            <div class="col-11 col-xs-11 col-sm-11 mx-auto">
+                <mat-tab-group class="mt-5">
+                    <mat-tab label="Summary">
+                        <div class="container mt-4">
+                            <div class="row">
+                                <div class="col-12 col-xs-12 col-sm-6 mb-5">
+                                    <div class="mb-4 pb-2 mt-1" style="margin-left: 80px; font-size: 14px;">
+                                        <p class="mb-0"><b>High Price:</b> {{ quoteData?.h?.toFixed(2) }}</p>
+                                        <p class="mb-0"><b>Low Price:</b> {{ quoteData?.l?.toFixed(2) }}</p>
+                                        <p class="mb-0"><b>Open Price:</b> {{ quoteData?.o?.toFixed(2) }}</p>
+                                        <p class="mb-0"><b>Prev. Close:</b> {{ quoteData?.pc?.toFixed(2) }}</p>
+                                    </div>
+                                    <div class="text-center" style="font-size: 14px;">
+                                        <h5 style="text-decoration: underline;">About the company</h5>
+                                        <p class="mt-4"><b>IPO Start Date</b>: {{ stockProfileData?.ipo }}</p>
+                                        <p class="mt-3"><b>Industry</b>: {{ stockProfileData?.finnhubIndustry }}</p>
+                                        <p class="mt-3"><b>Webpage</b>: <a [href]="stockProfileData?.weburl" target="_blank">{{ stockProfileData?.weburl }}</a></p>
+                                        <p class="mt-3"><b>Company peers</b>:</p>
+                                        
+                                        <div class="mt-3">
+                                            <ng-container  class="mt-4" *ngFor="let data of companyPeers">
+                                                <a class="d-inline" [routerLink]="['/search', data]" *ngIf="data"> {{ data }},</a>
+                                            </ng-container>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-xs-12 col-sm-6">
+                                    <highcharts-chart 
+                                    class="mb-5"
+                                        constructorType="stockChart"
+                                        [Highcharts]="Highcharts"
+                                        [options]="chartoptions"
+                                        style="width: 100%; height: 405px; display: block;"
+                                    ></highcharts-chart>
+                                </div>
+                            
+                            </div>
+            
+                        </div>
+                    </mat-tab>
+                    <mat-tab label="Top News">
+                        <div class="mt-3 mb-5">
+                            <app-news class="mt-5" [ticker]="ticker"></app-news>
+                        </div>
+                    </mat-tab>
+                    <mat-tab label="Charts">
+                        <app-charts-tab [ticker]="ticker" [chartsOhlcData]="chartsOhlcData" [volumeData]="volumeData"></app-charts-tab>
+                    </mat-tab>
+                    <mat-tab label="Insights">
+                        <app-company-insights [ticker]="ticker"></app-company-insights>
+                    </mat-tab>
+                </mat-tab-group>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div *ngIf="isLoading" class="mt-5">
+    <mat-spinner [diameter]="50" class="mx-auto mt-5"></mat-spinner>
+</div>

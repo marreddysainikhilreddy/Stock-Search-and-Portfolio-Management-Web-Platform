@@ -1,0 +1,168 @@
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <div *ngIf="shareBought">
+                <ngb-alert class="mx-auto mt-5 text-center" style="width: 100%;" type="success" [dismissible]="true">{{ boughtShareTickerName }} bought successfully.</ngb-alert>
+            </div>
+            
+            <div *ngIf="shareSold">
+                <ngb-alert class="mx-auto mt-5 text-center" style="width: 100%;" type="danger" [dismissible]="true">{{ soldShareTickerName }} sold successfully.</ngb-alert>
+            </div>
+            
+            <h2 class="mt-5 p-2">My Portfolio</h2>
+        </div>  
+        <div class="col-md-11">
+            <div *ngIf="isLoading" class="mt-0 mx-auto text-center">
+                <mat-spinner [diameter]="50" class="mx-auto"></mat-spinner>
+            </div>
+        </div>
+    </div>
+    
+    
+    <div class="row mx-auto">
+        <div class="col-sm-12 col-md-10 mx-auto">
+            <div *ngIf="!isLoading">
+                <h5 class="m-0">Money in Wallet: ${{ (moneyInWallet)?.toFixed(2) }}</h5>
+                <div class="emptyAlert mx-auto" *ngIf="empty">
+                    <ngb-alert class="mx-auto mt-5 text-center" style="width: 100%;" type="warning" [dismissible]="false">Currently you don't have any stock.</ngb-alert>
+                </div>
+                <div class="portfolio-container mx-auto mt-3" *ngFor="let portfolio of processedPortfolioDetails">
+                    <div class="card mx-auto mb-3">
+                        <div class="card-header m-0 p-2" role="button"  (click)="cardOnClick(portfolio.ticker)">
+                            <div class="row">
+                                <div class="col-auto pr-0">
+                                    <h3 class="card-title">{{ portfolio.ticker }}</h3>
+                                </div>
+                                <div class="col-auto mt-1 fs-5 p-0">
+                                    <span class="card-text text-muted">{{ portfolio.stock_name }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-6 col-xs-1 col-sm-1 col-md-1 col-lg-3">
+                                        <b><p class="m-0 mt-2">Quantity:</p></b>
+                                        <b><p class="m-0">Avg. Cost / Share:</p></b>
+                                        <b><p class="m-0 mb-sm-2">Total Cost:</p></b>
+                                    </div>
+                                    <div class="col-6 col-xs-1 col-sm-1 col-md-1 col-lg-3">
+                                        <b><p class="m-0 mt-2">{{ (portfolio.quantity)?.toFixed(2) ?? '0.00' }}</p></b>
+                                        <b><p class="m-0">{{ (portfolio.avg_cost_per_share)?.toFixed(2) ?? '0.00' }}</p></b>
+                                        <b><p class="m-0 mb-sm-2">{{ (portfolio.total_cost)?.toFixed(2) ?? '0.00' }}</p></b>
+                                    </div>
+                                    <div class="col-6 col-xs-1 col-sm-1 col-md-1 col-lg-3">
+                                        <b><p class="m-0 mt-sm-2 font-weight-bold">Change:</p></b>
+                                        <b><p class="m-0">Current Price:</p></b>
+                                        <b><p class="m-0 mb-2">Market Value:</p></b>
+                                    </div>
+                                    <div class="col-6 col-xs-1 col-sm-1 col-md-1 col-lg-3">
+                                        <b><p class="m-0 mt-sm-2" [ngClass]="{'text-danger': portfolio.color === 'text-danger', 'text-success': portfolio.color === 'text-success', 'text-black': portfolio.color === 'text-black'}">
+                                            <fa-icon *ngIf="portfolio.currPrice < portfolio.avg_cost_per_share" [icon]="faCaretDown"></fa-icon>
+                                            <fa-icon *ngIf="portfolio.currPrice > portfolio.avg_cost_per_share" [icon]="faCaretUp"></fa-icon>
+                                            {{ portfolio.change !== 0 ? (portfolio.change)?.toFixed(2) : '0.00' }}
+                                          </p></b>
+                                          
+                                          
+                                        <b><p class="m-0" [ngClass]="{'text-danger': portfolio.color === 'text-danger', 'text-success': portfolio.color === 'text-success', 'text-black': portfolio.color === 'text-black'}">{{ portfolio.currPrice }}</p></b>
+                                        <b><p class="m-0 mb-2" [ngClass]="{'text-danger': portfolio.color === 'text-danger', 'text-success': portfolio.color === 'text-success', 'text-black': portfolio.color === 'text-black'}">{{ portfolio.market_value.toFixed(2) }}</p></b>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer m-0 p-0">
+                            <ng-template #content1 let-modal>
+                                <div class="modal-header" style="padding-bottom: 33px; padding-right: 20px;">
+                                    <h4 class="modal-title" id="modal-basic-title">{{ portfolio.ticker }}</h4>
+                                    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')" style="font-size: 10px;"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form>
+                                        <div class="mb-3">
+                                            <b><p for="cp">Current Price: {{ portfolio.currPrice.toFixed(2) }}</p></b>
+                                            <b><p for="cp">Money in Wallet: ${{ moneyInWallet.toFixed(2) }}</p></b>
+                                            <div class="input-group">
+                                                <label for="quantity" class="mt-1" style="margin-right: 10px;">Quantity: </label>
+                                                <input class="form-control" type="number" id="quantity" name="quantityInput" min="0" max="100" [value]='buyQuantityInputValue' [(ngModel)]="buyQuantityInputValue" (ngModelChange)="calculateTotalBuyValue(portfolio.ticker)" style="border-radius: 7px;" required/>
+                                                <!-- <input type="number" id="quantity" name="quantityInput" min="0" max="100" [value]='quantityInputValue' [(ngModel)]="quantityInputValue" (ngModelChange)="calculateTotalValue()" required/> -->
+                                            </div>
+                                            <div *ngIf="totalBuyValue > moneyInWallet">
+                                                <p style="color: red;">Not enough money in wallet!</p>
+                                            </div>
+                                            <div *ngIf="buyNonPositiveShare">
+                                                <p style="color: red;">Cannot buy non-positive shares!</p>
+                                            </div>
+                                            <div *ngIf="!buyInputValid">
+                                                <p style="color: red;">Please enter a valid amount</p>
+                                            </div>
+                                            <!-- <div *ngIf="buyInputValid">
+                                                <p style="color: red;">Cannot buy non-positive shares!</p>
+                                            </div> -->
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer p-1 pb-3 pt-2">
+                                    <div class="row w-100 m-0">
+                                        <div class="col">
+                                            <p class="text-left m-0 pt-2">Total: {{ totalBuyValue.toFixed(2) }}</p>
+                                        </div>
+                                        <div class="col d-flex justify-content-end">
+                                            <button (click)="buyShares(portfolio.ticker, portfolio.stock_name)" type="button" [disabled]="!buyButtonEnabled" class="btn btn-success" (click)="modal.close('Save click')">Buy</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-template>
+                            
+                            <button class="btn btn-primary m-2 px-3" (click)="open(content1)">Buy</button>
+                            
+                            <ng-template #content2 let-modal>
+                                <div class="modal-header" style="padding-bottom: 33px; padding-right: 20px">
+                                    <h4 class="modal-title" id="modal-basic-title">{{ portfolio.ticker }}</h4>
+                                    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')" style="font-size: 10px;"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form>
+                                        <div class="mb-3">
+                                            <b><p for="cp">Current Price: {{ portfolio.currPrice.toFixed(2) }}</p></b>
+                                            <b><p for="cp">Money in Wallet: ${{ moneyInWallet.toFixed(2) }}</p></b>
+                                            <div class="input-group">
+                                                <label for="quantity" class="mt-1" style="margin-right: 10px;">Quantity: </label>
+                                                <input class="form-control" style="border-radius: 7px;" type="number" id="quantity" name="quantityInput" [value]="0" min="0" max="100" [(ngModel)]="sellQuantityInputValue" (ngModelChange)="calculateTotalSellValue(portfolio.ticker, portfolio.quantity)" required/>
+                                            </div>
+                                            <div *ngIf="sellQuantityInputValue > portfolio.quantity">
+                                                <p style="color: red;">You cannot sell the stocks that you don't have!</p>
+                                            </div>
+                                            <div *ngIf="sellNonPositiveShare">
+                                                <p style="color: red;">Cannot sell non-positive shares!</p>
+                                            </div>
+                                            <div *ngIf="!sellInputValid">
+                                                <p style="color: red;">Please enter a valid amount</p>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer p-1 pb-3 pt-2">
+                                    <div class="row w-100 m-0">
+                                        <div class="col">
+                                            <p class="text-left m-0 pt-2">Total:{{ totalSellValue.toFixed(2) }} </p>
+                                        </div>
+                                        <div class="col d-flex justify-content-end">
+                                            <button (click)="sellShares(portfolio.ticker)" type="button" [disabled]="!sellButtonEnabled" class="btn btn-success" (click)="modal.close('Save click')">Sell</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-template>
+                            
+                            <button class="btn btn-danger m-2 px-3" (click)="open(content2)">Sell</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+    </div>
+</div>
+
+

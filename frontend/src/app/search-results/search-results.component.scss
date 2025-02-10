@@ -1,0 +1,26 @@
+.logo {
+    max-width: 95px;
+    max-height: 95px;
+}
+
+
+.col-sm-4 p {
+    margin: 0;
+}
+
+.star-icon {
+    border: none;
+}
+
+.first-column {
+    width: 50%;
+}
+
+.buyInput {
+    width: 70%;
+    border-radius: 20px;
+}
+
+.buyInput:focus {
+    border-color: blue;
+}

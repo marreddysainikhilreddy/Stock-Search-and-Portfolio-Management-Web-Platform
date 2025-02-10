@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Search</title>
+    <style>
+      .navbar {
+        background-color: rgb(31, 39, 151);
+        padding-left: 50px;
+        padding-right: 50px;
+      }
+      
+      #watchlist{
+        margin-right: 5px;
+        margin-left: 5px;
+      }
+      #portfolio {
+        margin-right: 5px;
+        margin-left: 5px;
+      }
+      .nav-link.active {
+        border: 1px solid white;
+        border-radius: 13px;
+      }
+      </style>
+  </head>
+  <body>
+    <div class="d-flex flex-column main-class">
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <a class="navbar-brand" href="#">Stock Search</a>
+      <button class="navbar-toggler" type="button" [attr.area-expanded]="!navCollapsed" (click)="navCollapsed = !navCollapsed" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    
+      <div [ngbCollapse]="navCollapsed" class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item mt-1 mb-1">
+            <a #navLink style="padding-left: 15px; padding-right: 15px;" class="nav-link" [routerLink]="tickerPresent ? ['/search', tickerValue]:['/search/home']" [class.active]="onSearchPage">Search</a>
+          </li>
+          <li class="nav-item mt-1 mb-1">
+            <a #navLink style="padding-left: 15px; padding-right: 15px;" id="watchlist" class="nav-link" routerLink="/watchlist" routerLinkActive="active">Watchlist</a>
+          </li>
+          <li class="nav-item mt-1 mb-1">
+            <a #navLink style="padding-left: 15px; padding-right: 15px;" id="portfolio" class="nav-link" routerLink="/portfolio" routerLinkActive="active">Portfolio</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    
+    <div class="flex-grow-1">
+      <router-outlet></router-outlet>
+    </div>
+  
+    <footer class="text-center text-dark py-3" style="background-color: rgb(216, 216, 216);">
+      <div class="container">
+        <p class="text-center mb-0"><b>Powered by  </b> <a href="https://finnhub.io/" target="_blank">Finnhub.io</a></p>
+      </div>
+    </footer>
+  
+  </div>
+  </body>
+  </html>
+  
+  

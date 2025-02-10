@@ -1,0 +1,42 @@
+    <div class="container">
+        <div class="row watchlist-container">
+            <div class="col-11 mx-auto">
+                <h3 class="mt-5 p-3">My Watchlist</h3>
+            </div>
+        </div>
+        <div *ngIf="isLoading" class="mt-5">
+            <mat-spinner [diameter]="50" class="mx-auto mt-5"></mat-spinner>
+        </div>
+        <div class="row watchlist-container mx-auto mt-1" *ngFor="let item of watchlist">
+            <div class="col-11 mx-auto">
+                <div class="card mx-auto mb-3">
+                    <div class="card-body p-0" (click)="cardOnClick(item.stockProfileTicker)">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col">
+                                    <fa-icon class="closeIcon" [icon]="faTimes" style="font-size: 13px;" (click)="onClose(item.stockProfileTicker); $event.stopPropagation()"></fa-icon>
+                                </div>
+                            </div>
+                            <div class="row" >
+                                <div class="col">
+                                    <h5 class="mt-2">{{ item.stockProfileTicker }}</h5>
+                                    <p>{{ item.stockName }}</p>
+                                </div>
+                                <div class="col">
+                                    <h4 class="mt-2" [ngStyle]="{'color': (item.dp < 0)?'red':'green'}">{{ item?.c?.toFixed(2) }}</h4>
+                                    <p [ngStyle]="{'color': (item.dp < 0)?'red':'green'}">
+                                        <fa-icon style="font-size: 13px;" [icon]="(item.dp<0)?faCaretDown:faCaretUp"></fa-icon>{{ item?.d?.toFixed(2) }}({{ item?.dp?.toFixed(2) }}%)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+<div class="emptyAlert mx-auto" *ngIf="empty">
+    <ngb-alert class="mx-auto mt-5 text-center" style="width: 70%;" type="warning" [dismissible]="false">Currently you don't have any stock in your watchlist.</ngb-alert>
+</div>
