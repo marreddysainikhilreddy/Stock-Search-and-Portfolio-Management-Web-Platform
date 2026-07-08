@@ -2,6 +2,16 @@
 
 Full stack web platform for stock search, watchlists, and portfolio management with real time and historical market data.
 
+## Architecture
+
+```mermaid
+flowchart LR
+    UI["Angular front end<br/>Highcharts visualizations"] --> API["Node.js and Express backend<br/>response caching"]
+    API --> F["Finnhub API<br/>real time quotes and company data"]
+    API --> P["Polygon.io API<br/>historical prices"]
+    API --> D["Deployed on<br/>Google Cloud Platform"]
+```
+
 ## Features
 
 - Real time quotes and company data from the Finnhub API, historical price charts from Polygon.io rendered with Highcharts
